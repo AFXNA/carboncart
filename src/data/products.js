@@ -2,14 +2,14 @@
 // bom / packaging: [materialKey, kg]. route.kg is the shipped mass.
 // source: product_label | retrieved_benchmark | ai_inference
 
-const miami = ["Miami, FL", 25.8, -80.2];
+export const DESTINATION = ["Miami, FL", 25.8, -80.2];
 
 export const PRODUCTS = [
   {
     id: "energy-can", barcode: "0123456789012", name: "Energy Drink 16oz", category: "Beverages",
     price: 2.99, emoji: "🥤", lifespan: "Single use",
     bom: [["aluminum", 0.014], ["sugarLiquid", 0.47]], packaging: [["cardboard", 0.02]],
-    route: { km: 9200, mode: "ship", kg: 0.5 }, origin: ["Guangdong, CN", 23.1, 113.3], destination: miami,
+    route: { km: 9200, mode: "ship", kg: 0.5 }, origin: ["Guangdong, CN", 23.1, 113.3], destination: DESTINATION,
     source: "ai_inference", confidence: "medium",
   },
   {
@@ -37,21 +37,21 @@ export const PRODUCTS = [
     id: "tee-o", name: "Organic Cotton T-Shirt", category: "Clothing",
     price: 18, emoji: "🌿", lifespan: "~4 years",
     bom: [["organicCotton", 0.2]], packaging: [["cardboard", 0.02]],
-    route: { km: 14500, mode: "ship", kg: 0.25 }, origin: ["Izmir, TR", 38.4, 27.1], destination: miami,
+    route: { km: 14500, mode: "ship", kg: 0.25 }, origin: ["Izmir, TR", 38.4, 27.1], destination: DESTINATION,
     source: "retrieved_benchmark", confidence: "medium",
   },
   {
     id: "milk", barcode: "0555555555555", name: "Whole Milk 1 gal", category: "Groceries",
     price: 4.2, emoji: "🥛", lifespan: "7–10 days",
     bom: [["milk", 3.8]], packaging: [["pet", 0.06]],
-    route: { km: 300, mode: "truck", kg: 3.9 }, origin: ["Okeechobee, FL", 27.2, -80.8], destination: miami,
+    route: { km: 300, mode: "truck", kg: 3.9 }, origin: ["Okeechobee, FL", 27.2, -80.8], destination: DESTINATION,
     source: "product_label", confidence: "high",
   },
   {
     id: "oat", name: "Oat Drink 1 gal", category: "Groceries",
     price: 6.5, emoji: "🌾", lifespan: "~30 days shelf-stable",
     bom: [["oat", 3.8]], packaging: [["cardboard", 0.05]],
-    route: { km: 1800, mode: "truck", kg: 3.9 }, origin: ["Minneapolis, MN", 45, -93.3], destination: miami,
+    route: { km: 1800, mode: "truck", kg: 3.9 }, origin: ["Minneapolis, MN", 45, -93.3], destination: DESTINATION,
     source: "retrieved_benchmark", confidence: "medium",
   },
 ];
