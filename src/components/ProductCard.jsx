@@ -9,8 +9,9 @@ import EvidencePanel from "./EvidencePanel";
 
 export default function ProductCard({ product: p }) {
   const { setTab } = useApp();
-  // Scale bars against the highest value in the same category.
-  const peers = CATALOG.filter((x) => x.category === p.category);
+  // Scale bars against the highest value in the same category (whole catalog if the category is new).
+  const sameCategory = CATALOG.filter((x) => x.category === p.category);
+  const peers = [...(sameCategory.length ? sameCategory : CATALOG), p];
   const max = Object.fromEntries(AXES.map((a) => [a.key, Math.max(...peers.map((x) => x.impact[a.key]))]));
 
   const score = Math.round(100 * (1 - AXES.reduce((s, a) => s + (max[a.key] ? p.impact[a.key] / max[a.key] : 0), 0) / AXES.length));

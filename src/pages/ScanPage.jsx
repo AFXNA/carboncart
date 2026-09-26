@@ -136,11 +136,9 @@ export default function ScanPage() {
 
   // Simulated camera: in production, decode with ZXing/quagga, falling back to the vision model.
   const startCamera = () => {
+    reset();
     setScanning(true);
-    setTimeout(() => {
-      setScanning(false);
-      scan(DEMOS[Math.floor(Math.random() * DEMOS.length)]);
-    }, 1800);
+    cameraTimer.current = setTimeout(() => selectProduct(DEMOS[Math.floor(Math.random() * DEMOS.length)]), 1800);
   };
 
   const cannotSearch = searching || !query.trim();
@@ -150,28 +148,28 @@ export default function ScanPage() {
   return (
     <>
       <div className="card">
-        <h2>Scan a product</h2>
-        <div className="row">
+        <h2>Find a product</h2>
+        <form className="row" onSubmit={(e) => { e.preventDefault(); lookup(); }}>
           <input
             className="grow" type="text" value={query} placeholder="Enter barcode or product name"
-            aria-label="Barcode or product name"
-            onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && lookup()}
+            aria-label="Barcode or product name" maxLength={200}
+            onChange={(e) => { reset(); setQuery(e.target.value); }}
           />
-          <button className="primary" onClick={lookup}>Look up</button>
-        </div>
+          <button className="primary" type="submit" disabled={cannotSearch}>Look up</button>
+          <button type="button" disabled={cannotSearch} onClick={() => lookup(true)}>Search web with Gemini</button>
+        </form>
+        <p className="mute">Look up a demo product or search the web by name, brand, barcode, or description.</p>
+        {searching && <p role="status">Finding the closest products with Gemini…</p>}
+        {error && <p role="alert" className="bad">{error}</p>}
         <div className="row gap-top">
           <button onClick={startCamera}>📷 Scan barcode / photo</button>
         </div>
-        {scanning && (
-          <div className="viewfinder"><p>Point camera at a barcode… (demo)</p></div>
-        )}
+        {scanning && <div className="viewfinder"><p>Point camera at a barcode… (demo)</p></div>}
         <div className="mute gap-top">
           Try a demo item:
           <div className="demo">
             {DEMOS.map((p) => (
-              <button key={p.id} className="chip" onClick={() => { setMiss(null); scan(p); }}>
-                {p.emoji} {p.name}
-              </button>
+              <button key={p.id} className="chip" onClick={() => selectProduct(p)}>{p.emoji} {p.name}</button>
             ))}
           </div>
         </div>

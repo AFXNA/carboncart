@@ -22,13 +22,14 @@ export function AppProvider({ children }) {
 
   // Simple preference learning: accepting a swap raises CO₂ weight, passing raises budget sensitivity.
   const acceptSwap = (to) => {
-    setSwaps((s) => [...s, { from: current.id, to: to.id, t: Date.now() }]);
+    setSwaps((s) => [...s, { from: current.id, to: to.id, saved: current.impact.co2 - to.impact.co2, t: Date.now() }]);
     setPrefs((p) => ({ ...p, co2: clamp(p.co2 + 3) }));
   };
   const rejectSwap = () => setPrefs((p) => ({ ...p, budget: clamp(p.budget + 4) }));
 
   const co2Avoided = swaps.reduce(
-    (sum, s) => sum + findProduct(s.from).impact.co2 - findProduct(s.to).impact.co2,
+    // Older entries lack `saved`; web-search products aren't in the catalog, so store the delta up front.
+    (sum, s) => sum + (s.saved ?? findProduct(s.from).impact.co2 - findProduct(s.to).impact.co2),
     0
   );
 

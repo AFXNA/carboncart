@@ -52,8 +52,10 @@ export function transportCo2(product) {
   return TRANSPORT[mode].co2 * (kg / 1000) * km;
 }
 
-// Precomputed catalog with impact + evidence attached.
-export const CATALOG = PRODUCTS.map((p) => ({ ...p, ...calculateImpact(p) }));
+// Attach computed impact + evidence to a product definition.
+export const withImpact = (p) => ({ ...p, ...calculateImpact(p) });
+
+export const CATALOG = PRODUCTS.map(withImpact);
 
 export const findProduct = (id) => CATALOG.find((p) => p.id === id);
 
