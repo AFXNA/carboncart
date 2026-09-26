@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CATALOG, findByQuery, withImpact } from "../lib/calculator";
+import { prepareImage } from "../lib/image";
 import { DESTINATION } from "../data/products";
 import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
@@ -12,11 +13,11 @@ const CONFIDENCE_LABEL = {
   low: "⚠️ Low confidence",
 };
 
-async function searchProducts(query, signal) {
-  const response = await fetch("/api/products/search", {
+async function searchProducts(query, signal, path = "/api/products/search", payload = { query }) {
+  const response = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify(payload),
     signal,
   });
   let data;
@@ -85,23 +86,21 @@ function SearchResults({ results, selectedId, onSelect }) {
 export default function ScanPage() {
   const { current, scan } = useApp();
   const [query, setQuery] = useState("");
-  const [scanning, setScanning] = useState(false);
+  const [photo, setPhoto] = useState(null);
+  const fileInput = useRef(null);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
   const [results, setResults] = useState(null);
   const request = useRef(null);
-  const cameraTimer = useRef(null);
 
   const cancelPending = () => {
     request.current?.abort();
     request.current = null;
-    clearTimeout(cameraTimer.current);
   };
   useEffect(() => cancelPending, []);
 
   const reset = () => {
     cancelPending();
-    setScanning(false);
     setSearching(false);
     setError("");
     setResults(null);
@@ -134,11 +133,27 @@ export default function ScanPage() {
     }
   };
 
-  // Simulated camera: in production, decode with ZXing/quagga, falling back to the vision model.
-  const startCamera = () => {
+  // Photo upload: Gemini identifies the product and estimates its materials; the calculator scores it.
+  const onPhoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
     reset();
-    setScanning(true);
-    cameraTimer.current = setTimeout(() => selectProduct(DEMOS[Math.floor(Math.random() * DEMOS.length)]), 1800);
+    setSearching(true);
+    const controller = new AbortController();
+    request.current = controller;
+    try {
+      const { image, mime, url } = await prepareImage(file);
+      setPhoto(url);
+      setResults(await searchProducts("your photo", controller.signal, "/api/products/identify", { image, mime }));
+    } catch (err) {
+      if (!controller.signal.aborted) setError(err.message || "Could not read that image.");
+    } finally {
+      if (request.current === controller) {
+        request.current = null;
+        setSearching(false);
+      }
+    }
   };
 
   const cannotSearch = searching || !query.trim();
@@ -148,11 +163,18 @@ export default function ScanPage() {
   return (
     <>
       <div className="card">
-        <h2>Find a product</h2>
+        <h2>Snap a product</h2>
+        <label className={`dropzone${searching ? " busy" : ""}`}>
+          <input ref={fileInput} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto} disabled={searching} />
+          {photo ? <img src={photo} alt="Your uploaded product" /> : <span className="drop-emoji">📸</span>}
+          <strong>{searching ? "Analyzing your photo…" : photo ? "Upload a different photo" : "Upload or take a photo"}</strong>
+          <span className="mute">Gemini identifies the product and estimates its materials and shipping.</span>
+        </label>
+        <h3>Or search by name</h3>
         <form className="row" onSubmit={(e) => { e.preventDefault(); lookup(); }}>
           <input
-            className="grow" type="text" value={query} placeholder="Enter barcode or product name"
-            aria-label="Barcode or product name" maxLength={200}
+            className="grow" type="text" value={query} placeholder="Product name or brand"
+            aria-label="Product name or brand" maxLength={200}
             onChange={(e) => { reset(); setQuery(e.target.value); }}
           />
           <button className="primary" type="submit" disabled={cannotSearch}>Look up</button>
@@ -161,10 +183,6 @@ export default function ScanPage() {
         <p className="mute">Look up a demo product or search the web by name, brand, barcode, or description.</p>
         {searching && <p role="status">Finding the closest products with Gemini…</p>}
         {error && <p role="alert" className="bad">{error}</p>}
-        <div className="row gap-top">
-          <button onClick={startCamera}>📷 Scan barcode / photo</button>
-        </div>
-        {scanning && <div className="viewfinder"><p>Point camera at a barcode… (demo)</p></div>}
         <div className="mute gap-top">
           Try a demo item:
           <div className="demo">

@@ -3,7 +3,7 @@ import { useApp } from "../context/AppContext";
 export const TABS = [
   { key: "scan", icon: "🔍", label: "Scan" },
   { key: "swap", icon: "🔁", label: "Swap" },
-  { key: "sim", icon: "📈", label: "Simulate" },
+  { key: "chat", icon: "💬", label: "Ask AI" },
   { key: "map", icon: "🗺️", label: "Map" },
   { key: "me", icon: "👤", label: "Me" },
 ];

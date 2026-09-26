@@ -4,11 +4,11 @@ import Safe from "./components/Safe";
 import Nav from "./components/Nav";
 import ScanPage from "./pages/ScanPage";
 import SwapPage from "./pages/SwapPage";
-import SimulatePage from "./pages/SimulatePage";
+import ChatPage from "./pages/ChatPage";
 import MapPage from "./pages/MapPage";
 import ProfilePage from "./pages/ProfilePage";
 
-const PAGES = { scan: ScanPage, swap: SwapPage, sim: SimulatePage, map: MapPage, me: ProfilePage };
+const PAGES = { scan: ScanPage, swap: SwapPage, chat: ChatPage, map: MapPage, me: ProfilePage };
 
 export default function App() {
   const { tab } = useApp();

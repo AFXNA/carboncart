@@ -4,7 +4,7 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "test": "node --test server/*.test.js",
+    "test": "python -m unittest backend.test_api",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"

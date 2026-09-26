@@ -11,7 +11,7 @@ export default function ScoreRing({ score }) {
           style={{ transition: "stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)" }} />
       </svg>
       <b>{score}</b>
-      <small>eco score</small>
+      <small>Eco Score</small>
     </div>
   );
 }

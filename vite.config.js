@@ -1,17 +1,12 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { productSearchMiddleware } from "./server/product-search.js";
 
-export default defineConfig(({ mode }) => {
-  // Load GEMINI_* from .env files server-side only; never expose them to the client bundle.
-  const env = { ...loadEnv(mode, process.cwd(), "GEMINI_"), ...process.env };
-  const addSearchApi = (server) => {
-    server.middlewares.use(productSearchMiddleware({
-      apiKey: env.GEMINI_API_KEY,
-      model: env.GEMINI_MODEL || undefined,
-    }));
-  };
-  return {
-    plugins: [react(), { name: "gemini-product-search", configureServer: addSearchApi, configurePreviewServer: addSearchApi }],
-  };
+// The Gemini-backed API lives in the Python service (backend/). Vite forwards /api/* to it,
+// so the key stays server-side and the browser only ever talks to this origin.
+const api = { "/api": { target: "http://127.0.0.1:8000", changeOrigin: true, timeout: 120_000 } };
+
+export default defineConfig({
+  plugins: [react()],
+  server: { proxy: api },
+  preview: { proxy: api },
 });
