@@ -1,4 +1,6 @@
 import { useApp } from "./context/AppContext";
+import Globe from "./components/Globe";
+import Safe from "./components/Safe";
 import Nav from "./components/Nav";
 import ScanPage from "./pages/ScanPage";
 import SwapPage from "./pages/SwapPage";
@@ -13,12 +15,15 @@ export default function App() {
   const Page = PAGES[tab];
   return (
     <>
-      <header className="header">
-        <h1>Carbon<span>Cart</span></h1>
-        <p className="tag">Not what to buy — the consequences of your choices.</p>
+      <header className="hero">
+        <div className="hero-globe"><Safe fallback={<div style={{ height: 40 }} />}><Globe height={260} label="Rotating Earth" /></Safe></div>
+        <div className="hero-text">
+          <h1>Carbon<span>Cart</span></h1>
+          <p>Not what to buy — the consequences of your choices.</p>
+        </div>
       </header>
       <main className="main">
-        <Page />
+        <Safe><Page key={tab} /></Safe>
       </main>
       <Nav />
     </>
