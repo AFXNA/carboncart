@@ -13,7 +13,10 @@ import re
 from pathlib import Path
 from urllib.parse import urlparse
 
+import os
+
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -109,6 +112,17 @@ RESPONSE_SCHEMA = {
 }
 
 app = FastAPI(title="CarbonCart API", docs_url=None, redoc_url=None)
+
+# Split deployments (e.g. frontend on Vercel, backend on Render) call this API cross-origin.
+# ALLOWED_ORIGINS is a comma-separated list of frontend origins; defaults to "*" for convenience,
+# which is safe here since the API takes no cookies/auth headers (allow_credentials stays False).
+_allowed_origins = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "*").split(",") if o.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_allowed_origins,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+)
 
 
 @app.exception_handler(ApiError)

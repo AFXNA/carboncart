@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "../context/AppContext";
+import { apiUrl } from "../lib/api";
 
 const STARTERS = [
   "What has the biggest carbon footprint in my weekly shopping?",
@@ -9,7 +10,7 @@ const STARTERS = [
 ];
 
 async function ask(messages, context, signal) {
-  const response = await fetch("/api/chat", {
+  const response = await fetch(apiUrl("/api/chat"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ messages, context }),

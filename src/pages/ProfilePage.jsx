@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
 import { fmt } from "../lib/format";
+import { apiUrl } from "../lib/api";
 
 const TILES = [
   { key: "co2", icon: "🌫️", label: "CO₂ avoided", unit: "kg", color: "var(--co2)" },
@@ -24,7 +25,7 @@ export default function ProfilePage() {
   const [remote, setRemote] = useState(null);
   useEffect(() => {
     let live = true;
-    fetch(`/api/profile?email=${encodeURIComponent(user.email)}`)
+    fetch(apiUrl(`/api/profile?email=${encodeURIComponent(user.email)}`))
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => live && setRemote(d))
       .catch(() => {});

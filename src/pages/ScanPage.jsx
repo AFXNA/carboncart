@@ -4,6 +4,7 @@ import { prepareImage } from "../lib/image";
 import { DESTINATION } from "../data/products";
 import { useApp } from "../context/AppContext";
 import ProductCard from "../components/ProductCard";
+import { apiUrl } from "../lib/api";
 
 const DEMOS = CATALOG.filter((p) => p.barcode);
 
@@ -14,7 +15,7 @@ const CONFIDENCE_LABEL = {
 };
 
 async function searchProducts(query, signal, path = "/api/products/search", payload = { query }) {
-  const response = await fetch(path, {
+  const response = await fetch(apiUrl(path), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
