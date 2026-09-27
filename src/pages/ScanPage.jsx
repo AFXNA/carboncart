@@ -8,9 +8,9 @@ import ProductCard from "../components/ProductCard";
 const DEMOS = CATALOG.filter((p) => p.barcode);
 
 const CONFIDENCE_LABEL = {
-  high: "✅ High confidence",
-  medium: "⚠️ Medium confidence",
-  low: "⚠️ Low confidence",
+  high: "High confidence",
+  medium: "Medium confidence",
+  low: "Low confidence",
 };
 
 async function searchProducts(query, signal, path = "/api/products/search", payload = { query }) {
@@ -133,7 +133,7 @@ export default function ScanPage() {
     }
   };
 
-  // Photo upload: Gemini identifies the product and estimates its materials; the calculator scores it.
+  // Photo upload: Groq identifies the product and estimates its materials; the calculator scores it.
   const onPhoto = async (e) => {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -168,7 +168,7 @@ export default function ScanPage() {
           <input ref={fileInput} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto} disabled={searching} />
           {photo ? <img src={photo} alt="Your uploaded product" /> : <span className="drop-emoji">📸</span>}
           <strong>{searching ? "Analyzing your photo…" : photo ? "Upload a different photo" : "Upload or take a photo"}</strong>
-          <span className="mute">Gemini identifies the product and estimates its materials and shipping.</span>
+          <span className="mute">Groq identifies the product and estimates its materials and shipping.</span>
         </label>
         <h3>Or search by name</h3>
         <form className="row" onSubmit={(e) => { e.preventDefault(); lookup(); }}>
@@ -178,10 +178,10 @@ export default function ScanPage() {
             onChange={(e) => { reset(); setQuery(e.target.value); }}
           />
           <button className="primary" type="submit" disabled={cannotSearch}>Look up</button>
-          <button type="button" disabled={cannotSearch} onClick={() => lookup(true)}>Search web with Gemini</button>
+          <button type="button" disabled={cannotSearch} onClick={() => lookup(true)}>Search web with Groq</button>
         </form>
         <p className="mute">Look up a demo product or search the web by name, brand, barcode, or description.</p>
-        {searching && <p role="status">Finding the closest products with Gemini…</p>}
+        {searching && <p role="status">Finding the closest products with Groq…</p>}
         {error && <p role="alert" className="bad">{error}</p>}
         <div className="mute gap-top">
           Try a demo item:

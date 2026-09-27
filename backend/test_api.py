@@ -38,12 +38,9 @@ class Routes(unittest.TestCase):
         return client.post(path, json=body, **kw)
 
     def test_search_returns_normalized_picks(self):
-        async def fake(payload, cfg, **_):
-            self.assertIn({"google_search": {}}, payload["tools"])
-            return {**candidate({"picks": [pick(), pick(name="", bom=[]), pick(bom=[{"material": "nope", "kg": 1}])]}),
-                    "groundingMetadata": {"groundingChunks": [{"web": {"uri": "https://a.example/x", "title": "A"}},
-                                                              {"web": {"uri": "http://insecure.example"}}]}}
-        with patch.object(gemini, "generate", fake):
+        async def fake(*_):
+            return {"picks": [pick(), pick(name="", bom=[]), pick(bom=[{"material": "nope", "kg": 1}])]}, ["https://a.example/x"]
+        with patch.object(main.groq_client, "search", fake):
             r = self.post("/api/products/search", {"query": "oat milk"})
         body = r.json()
         self.assertEqual(r.status_code, 200)
@@ -52,7 +49,7 @@ class Routes(unittest.TestCase):
         self.assertEqual(p["bom"], [["oat", 1.9]])
         self.assertEqual(p["origin"], ["Ogden, UT", 41.2, -112])
         self.assertEqual(p["source"], "ai_inference")
-        self.assertEqual(body["sources"], [{"title": "A", "url": "https://a.example/x"}])
+        self.assertEqual(body["sources"], [{"title": "a.example", "url": "https://a.example/x"}])
 
     def test_search_validates_query(self):
         self.assertEqual(self.post("/api/products/search", {"query": "  "}).status_code, 400)
@@ -69,12 +66,11 @@ class Routes(unittest.TestCase):
         self.assertEqual(self.post("/api/products/identify", {"image": "abc", "mime": "image/gif"}).status_code, 400)
         self.assertEqual(self.post("/api/products/identify", {"image": "!!!", "mime": "image/png"}).status_code, 400)
 
-    def test_identify_sends_image_without_search_tool(self):
-        async def fake(payload, cfg, **_):
-            self.assertNotIn("tools", payload)
-            self.assertEqual(payload["contents"][0]["parts"][0]["inlineData"]["mimeType"], "image/png")
-            return candidate({"picks": [pick()]})
-        with patch.object(gemini, "generate", fake):
+    def test_identify_uses_groq_vision(self):
+        async def fake(system, image_url):
+            self.assertTrue(image_url.startswith("data:image/png;base64,"))
+            return {"picks": [pick()]}
+        with patch.object(main.groq_client, "identify", fake):
             r = self.post("/api/products/identify", {"image": "aGVsbG8=", "mime": "image/png"})
         self.assertEqual(len(r.json()["picks"]), 1)
 
