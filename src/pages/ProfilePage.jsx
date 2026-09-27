@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useApp } from "../context/AppContext";
 import { fmt } from "../lib/format";
 
@@ -18,17 +19,37 @@ const equivalents = (s) => [
 ];
 
 export default function ProfilePage() {
-  const { swaps, saved } = useApp();
-  const anySaved = swaps.length > 0;
+  const { swaps: localSwaps, saved: localSaved, user, logOut } = useApp();
+  // Accounts that exist in Supabase get their stored totals; anyone else falls back to this browser's swaps.
+  const [remote, setRemote] = useState(null);
+  useEffect(() => {
+    let live = true;
+    fetch(`/api/profile?email=${encodeURIComponent(user.email)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => live && setRemote(d))
+      .catch(() => {});
+    return () => { live = false; };
+  }, [user.email]);
+
+  const saved = remote?.saved ?? localSaved;
+  const swapCount = remote ? remote.swaps.length : localSwaps.length;
+  const anySaved = swapCount > 0;
   const eq = equivalents(saved);
 
   return (
     <>
-      <img className="robot-banner" src={`${import.meta.env.BASE_URL}robot-small.jpg`} alt="CarbonCart robot mascot" />
+      <div className="card profile-head">
+        <img src="/robot-small.jpg" className="profile-avatar" alt="" />
+        <div>
+          <h2>{user?.name}</h2>
+          <p className="mute">{user?.email}</p>
+        </div>
+        <button onClick={logOut}>Log out</button>
+      </div>
       <div className="card saved-card">
         <h2>🌍 Resources you've saved</h2>
         {anySaved ? (
-          <p className="mute">Across {swaps.length} swap{swaps.length === 1 ? "" : "s"} you chose over the original product.</p>
+          <p className="mute">Across {swapCount} swap{swapCount === 1 ? "" : "s"} you chose over the original product.</p>
         ) : (
           <p className="mute">Nothing yet. Scan a product, open Swap, and pick a lower-impact alternative to start tracking.</p>
         )}
@@ -49,7 +70,20 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
-
+      {remote && remote.swaps.length > 0 && (
+        <div className="card">
+          <h2>Recent swaps</h2>
+          <ul className="swap-list">
+            {remote.swaps.map((w, i) => (
+              <li key={i}>
+                <span>{w.from} → <b>{w.to}</b></span>
+                <span className="mute">−{fmt(w.saved.co2)} kg CO₂ · {new Date(w.at).toLocaleDateString()}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mute">{remote.scans} product{remote.scans === 1 ? "" : "s"} scanned</p>
+        </div>
+      )}
     </>
   );
 }

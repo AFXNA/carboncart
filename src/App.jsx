@@ -6,12 +6,13 @@ import ScanPage from "./pages/ScanPage";
 import SwapPage from "./pages/SwapPage";
 import ChatPage from "./pages/ChatPage";
 import MapPage from "./pages/MapPage";
+import AuthPage from "./pages/AuthPage";
 import ProfilePage from "./pages/ProfilePage";
 
 const PAGES = { scan: ScanPage, swap: SwapPage, chat: ChatPage, map: MapPage, me: ProfilePage };
 
 export default function App() {
-  const { tab } = useApp();
+  const { tab, user } = useApp();
   const Page = PAGES[tab];
   return (
     <>
@@ -23,9 +24,9 @@ export default function App() {
         </div>
       </header>
       <main className="main">
-        <Safe><Page key={tab} /></Safe>
+        <Safe>{user ? <Page key={tab} /> : <AuthPage />}</Safe>
       </main>
-      <Nav />
+      {user && <Nav />}
     </>
   );
 }

@@ -2,6 +2,7 @@ import { createContext, useContext, useState } from "react";
 import { usePersistentState } from "../hooks/usePersistentState";
 import { AXES } from "../data/emissionFactors";
 import { findProduct } from "../lib/calculator";
+import { hashPassword } from "../lib/auth";
 
 const AppContext = createContext(null);
 export const useApp = () => useContext(AppContext);
@@ -25,6 +26,25 @@ export function AppProvider({ children }) {
   const [history, setHistory] = usePersistentState("cc-history", []);
   const [swaps, setSwaps] = usePersistentState("cc-swaps", []);
 
+  // Demo-grade auth: accounts live in this browser's localStorage (no backend endpoint yet).
+  const [users, setUsers] = usePersistentState("cc-users", []);
+  const [user, setUser] = usePersistentState("cc-user", null);
+  const signUp = async (name, email, password) => {
+    const e = email.trim().toLowerCase();
+    if (users.some((u) => u.email === e)) throw new Error("An account with that email already exists.");
+    const account = { name: name.trim(), email: e, hash: await hashPassword(password, e) };
+    setUsers((u) => [...u, account]);
+    setUser({ name: account.name, email: e });
+  };
+  const logIn = async (email, password) => {
+    const e = email.trim().toLowerCase();
+    const account = users.find((u) => u.email === e);
+    if (!account || account.hash !== (await hashPassword(password, e))) throw new Error("Incorrect email or password.");
+    setUser({ name: account.name, email: e });
+  };
+  const demoLogin = () => setUser({ name: "Ava Green", email: "ava@example.com" }); // seeded row in Supabase
+  const logOut = () => { setUser(null); setTab("scan"); };
+
   const scan = (product) => {
     setCurrent(product);
     setHistory((h) => [{ id: product.id, t: Date.now() }, ...h].slice(0, 50));
@@ -46,6 +66,6 @@ export function AppProvider({ children }) {
     { co2: 0, water: 0, waste: 0, energy: 0 }
   );
 
-  const value = { tab, setTab, current, scan, prefs, setPrefs, history, swaps, acceptSwap, rejectSwap, co2Avoided: saved.co2, saved };
+  const value = { user, signUp, logIn, demoLogin, logOut, tab, setTab, current, scan, prefs, setPrefs, history, swaps, acceptSwap, rejectSwap, co2Avoided: saved.co2, saved };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }

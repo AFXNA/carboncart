@@ -17,7 +17,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import gemini
+from . import db, gemini
 from .factors import MATERIAL_KEYS, TRANSPORT_MODES
 from .gemini import ApiError
 
@@ -294,6 +294,19 @@ async def chat(request: Request):
     if not reply:
         raise ApiError(502, "The assistant had no answer for that. Try rephrasing.")
     return JSONResponse({"reply": reply}, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/profile")
+def get_profile(email: str = ""):
+    # Sync handler: FastAPI runs it in a threadpool, so the blocking Supabase client is fine.
+    try:
+        result = db.profile(email) if email else None
+    except Exception:
+        logging.getLogger("carboncart").exception("Profile lookup failed")
+        raise ApiError(502, "Could not load your profile.")
+    if result is None:
+        raise ApiError(404, "No such user.")
+    return JSONResponse(result, headers={"Cache-Control": "no-store"})
 
 
 # --- production: serve the built frontend from the same process ----------------------------
