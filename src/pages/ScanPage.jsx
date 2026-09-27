@@ -111,10 +111,10 @@ export default function ScanPage() {
     scan(product);
   };
 
-  const lookup = async (webOnly = false) => {
+  const lookup = async () => {
     const term = query.trim();
     if (!term) return;
-    const match = !webOnly && findByQuery(term);
+    const match = findByQuery(term);
     if (match) return selectProduct(match);
 
     reset();
@@ -178,9 +178,8 @@ export default function ScanPage() {
             onChange={(e) => { reset(); setQuery(e.target.value); }}
           />
           <button className="primary" type="submit" disabled={cannotSearch}>Look up</button>
-          <button type="button" disabled={cannotSearch} onClick={() => lookup(true)}>Search web with Gemini</button>
         </form>
-        <p className="mute">Look up a demo product or search the web by name, brand, barcode, or description.</p>
+        <p className="mute">Look up a demo product, or search the web with Gemini by name, brand, barcode, or description.</p>
         {searching && <p role="status">Finding the closest products with Gemini…</p>}
         {error && <p role="alert" className="bad">{error}</p>}
         <div className="mute gap-top">

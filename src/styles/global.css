@@ -137,7 +137,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .equivs .chip{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);color:#e3f3ea}
 
 /* Me page banner */
-.robot-banner{display:block;width:100%;max-height:260px;object-fit:cover;border-radius:20px;margin:14px 0;box-shadow:var(--shadow)}
+.robot-sticker{display:block;max-height:220px;margin:14px auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.2));transition:transform .2s}
+.robot-sticker:hover{transform:scale(1.05) rotate(-3deg)}
 
 /* Auth + profile header */
 input[type=email],input[type=password]{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink);font:inherit;transition:border-color .15s,box-shadow .15s}
@@ -149,7 +150,6 @@ input[type=email]:focus,input[type=password]:focus{outline:none;border-color:var
 .profile-head{display:flex;align-items:center;gap:14px}
 .profile-head h2{margin:0}.profile-head p{margin:0}
 .profile-head button{margin-left:auto}
-.profile-avatar{width:56px;height:56px;border-radius:50%;object-fit:cover}
 .swap-list{list-style:none;margin:0 0 10px;padding:0}
 .swap-list li{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line)}
 .swap-list li:last-child{border-bottom:0}

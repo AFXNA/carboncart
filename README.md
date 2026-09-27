@@ -3,18 +3,18 @@ This is a hackathon project for ShellHacks 26.
 
 ## Running it
 
-The frontend is React + Vite (needs Node.js 20.19+ for the dev server and build). The API is a Python 3.10+ FastAPI service in `backend/`.
+The frontend is React + Vite (needs Node.js 20.19+ for the dev server and build). The API is a Python 3.10+ FastAPI service in `backend/`. Utilized Supabase to store user information and mapping infos.
 
 ```
 npm install
 py -m venv .venv                      # macOS/Linux: python3 -m venv .venv
-.venvScriptspip install -r backend/requirements.txt   # macOS/Linux: .venv/bin/pip ...
+.venv/Scripts/pip install -r backend/requirements.txt   # macOS/Linux: .venv/bin/pip ...
 ```
 
-Put `GEMINI_API_KEY=...` in `.env` (or `.env.local`; optional `GEMINI_MODEL`, `GEMINI_FALLBACK_MODEL`). Get a key at [Google AI Studio](https://aistudio.google.com/app/apikey). Then run two terminals:
+Put `GEMINI_API_KEY=...` and `SUPABASE_URL`, `SUPABASE_SERVICE_KEY` in `.env` (or `.env.local`; optional `GEMINI_MODEL`, `GEMINI_FALLBACK_MODEL`). Get a key at [Google AI Studio](https://aistudio.google.com/app/apikey). Then run two terminals:
 
 ```
-.venvScriptspython -m uvicorn backend.main:app --port 8000    # API
+.venv/Scripts/python -m uvicorn backend.main:app --port 8000    # API
 npm run dev                                                       # UI at http://localhost:5173
 ```
 

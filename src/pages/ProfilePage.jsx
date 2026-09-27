@@ -38,8 +38,8 @@ export default function ProfilePage() {
 
   return (
     <>
+      <img src={`${import.meta.env.BASE_URL}robot-sticker.png`} className="robot-sticker" alt="Robot sticker" />
       <div className="card profile-head">
-        <img src="/robot-small.jpg" className="profile-avatar" alt="" />
         <div>
           <h2>{user?.name}</h2>
           <p className="mute">{user?.email}</p>
